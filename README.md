@@ -12,6 +12,9 @@ Simple [Yandex ClickHouse](https://clickhouse.yandex/) insert collector. It coll
 I had to fork [this source repository](https://github.com/nikepan/clickhouse-bulk) to add the ability to work with CA certificates.
 For example, [Yandex Cloud](https://cloud.yandex.ru/) require using certificates during the use.
 
+### Features
+- new config property ```tls_ca_path``` to bind your certificate
+
 
 ### Installation
 
@@ -25,7 +28,7 @@ or
 or from sources (Go 1.13+):
 
 ```text
-git clone https://github.com/nikepan/clickhouse-bulk
+git clone https://github.com/bytadaniel/clickhouse-bulk.git
 cd clickhouse-bulk
 go build
 ```
@@ -71,9 +74,10 @@ INSERT INTO table3 (c1, c2, c3) VALUES ('v1', 'v2', 'v3')('v4', 'v5', 'v6')
     "down_timeout": 60, // wait if server in down (seconds)
     "connect_timeout": 10, // wait for server connect (seconds)
     "tls_server_name": "", // override TLS serverName for certificate verification (e.g. in cases you share same "cluster" certificate across multiple nodes)
+    "tls_ca_path": "", // bind absolute path to your CA-cert
     "insecure_tls_skip_verify": false, // INSECURE - skip certificate verification at all
     "servers": [
-      "http://127.0.0.1:8123"
+      "https://127.0.0.1:3000?user=&password="
     ]
   },
   "metrics_prefix": "prefix"
