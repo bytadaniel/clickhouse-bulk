@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -50,11 +51,23 @@ var ErrServerIsDown = errors.New("server is down")
 var ErrNoServers = errors.New("No working clickhouse servers")
 
 // NewClickhouse - get clickhouse object
-func NewClickhouse(downTimeout int, connectTimeout int, tlsServerName string, tlsSkipVerify bool) (c *Clickhouse) {
+func NewClickhouse(downTimeout int, connectTimeout int, tlsServerName string, tlsCAPath string, tlsSkipVerify bool) (c *Clickhouse) {
 	tlsConfig := &tls.Config{}
+
 	if tlsServerName != "" {
 		tlsConfig.ServerName = tlsServerName
 	}
+
+	if tlsCAPath != "" {
+		caCert, err := ioutil.ReadFile(tlsCAPath)
+		if err != nil {
+			panic(err)
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+		tlsConfig.RootCAs = caCertPool
+	}
+
 	if tlsSkipVerify == true {
 		tlsConfig.InsecureSkipVerify = tlsSkipVerify
 	}

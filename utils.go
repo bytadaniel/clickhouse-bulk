@@ -8,14 +8,15 @@ import (
 	"strings"
 )
 
-const sampleConfig = "config.sample.json"
+const sampleConfig = "config.json"
 
 type clickhouseConfig struct {
 	Servers        []string `json:"servers"`
-	tlsServerName  string   `json:"tls_server_name"`
-	tlsSkipVerify  bool     `json:"insecure_tls_skip_verify"`
+	TlsServerName  string   `json:"tls_server_name"`
+	TlsSkipVerify  bool     `json:"insecure_tls_skip_verify"`
 	DownTimeout    int      `json:"down_timeout"`
 	ConnectTimeout int      `json:"connect_timeout"`
+	TlsCAPath      string   `json:"tls_ca_path"`
 }
 
 // Config stores config data
@@ -72,6 +73,7 @@ func readEnvBool(name string, value *bool) {
 
 func readEnvString(name string, value *string) {
 	s := os.Getenv(name)
+
 	if s != "" {
 		*value = s
 	}
@@ -97,8 +99,9 @@ func ReadConfig(configFile string) (Config, error) {
 	readEnvInt("DUMP_CHECK_INTERVAL", &cnf.DumpCheckInterval)
 	readEnvInt("CLICKHOUSE_DOWN_TIMEOUT", &cnf.Clickhouse.DownTimeout)
 	readEnvInt("CLICKHOUSE_CONNECT_TIMEOUT", &cnf.Clickhouse.ConnectTimeout)
-	readEnvBool("CLICKHOUSE_INSECURE_TLS_SKIP_VERIFY", &cnf.Clickhouse.tlsSkipVerify)
+	readEnvBool("CLICKHOUSE_INSECURE_TLS_SKIP_VERIFY", &cnf.Clickhouse.TlsSkipVerify)
 	readEnvString("METRICS_PREFIX", &cnf.MetricsPrefix)
+	readEnvString("CLICKHOUSE_CA_PATH", &cnf.Clickhouse.TlsCAPath)
 
 	serversList := os.Getenv("CLICKHOUSE_SERVERS")
 	if serversList != "" {
@@ -107,8 +110,9 @@ func ReadConfig(configFile string) (Config, error) {
 	log.Printf("use servers: %+v\n", strings.Join(cnf.Clickhouse.Servers, ", "))
 
 	tlsServerName := os.Getenv("CLICKHOUSE_TLS_SERVER_NAME")
+
 	if tlsServerName != "" {
-		cnf.Clickhouse.tlsServerName = tlsServerName
+		cnf.Clickhouse.TlsServerName = tlsServerName
 	}
 
 	return cnf, err

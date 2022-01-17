@@ -8,6 +8,10 @@
 
 Simple [Yandex ClickHouse](https://clickhouse.yandex/) insert collector. It collect requests and send to ClickHouse servers.
 
+## Why this fork exists
+I had to fork [this source repository](https://github.com/nikepan/clickhouse-bulk) to add the ability to work with CA certificates.
+For example, [Yandex Cloud](https://cloud.yandex.ru/) require using certificates during the use.
+
 
 ### Installation
 

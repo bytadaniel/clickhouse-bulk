@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	// "net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -49,14 +50,7 @@ func (server *Server) writeHandler(c echo.Context) error {
 	}
 
 	qs := c.QueryString()
-	user, password, ok := c.Request().BasicAuth()
-	if ok {
-		if qs == "" {
-			qs = "user=" + user + "&password=" + password
-		} else {
-			qs = "user=" + user + "&password=" + password + "&" + qs
-		}
-	}
+
 	params, content, insert := server.Collector.ParseQuery(qs, s)
 	if insert {
 		if len(content) == 0 {
@@ -139,7 +133,14 @@ func SafeQuit(collect *Collector, sender Sender) {
 func RunServer(cnf Config) {
 	InitMetrics(cnf.MetricsPrefix)
 	dumper := NewDumper(cnf.DumpDir)
-	sender := NewClickhouse(cnf.Clickhouse.DownTimeout, cnf.Clickhouse.ConnectTimeout, cnf.Clickhouse.tlsServerName, cnf.Clickhouse.tlsSkipVerify)
+
+	sender := NewClickhouse(
+		cnf.Clickhouse.DownTimeout,
+		cnf.Clickhouse.ConnectTimeout,
+		cnf.Clickhouse.TlsServerName,
+		cnf.Clickhouse.TlsCAPath,
+		cnf.Clickhouse.TlsSkipVerify,
+	)
 	sender.Dumper = dumper
 	for _, url := range cnf.Clickhouse.Servers {
 		sender.AddServer(url)
